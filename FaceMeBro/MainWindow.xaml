@@ -6,7 +6,56 @@
         xmlns:local="clr-namespace:FaceMeBro"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+    <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock x:Name="OutputImageLabel"
+                   Grid.Row="0"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Text="Output Image"
+                   Margin="8"/>
+        <!-- The ViewBox scales the canvas to fit -->
+        <Viewbox Grid.Row="1"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="2">
+            <Canvas x:Name="OutputCanvas"
+                    RenderOptions.BitmapScalingMode="Fant">
+                <Image x:Name="OutputImage"
+                   Canvas.Top="0"
+                   Canvas.Left="0"
+                   Stretch="Fill"/>
+            </Canvas>
+        </Viewbox>
+
+        <Button x:Name="BrowseButton"
+                Grid.Row="2"
+                Grid.Column="0"
+                Content="Browse..."
+                Margin="8"
+                Click="BrowseButton_OnClick"/>
+
+        <StackPanel x:Name="StatusPanel"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Margin="8"
+                    HorizontalAlignment="Stretch">
+            <TextBlock x:Name="ProgressLabel"
+                       Text="Waiting for the user..."
+                       Margin="0,0,8,0"/>
+            <ProgressBar x:Name="Progress"
+                         IsIndeterminate="True"
+                         Visibility="Collapsed"
+                         HorizontalAlignment="Stretch"/>
+        </StackPanel>
     </Grid>
 </Window>
