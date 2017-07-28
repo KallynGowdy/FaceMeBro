@@ -43,12 +43,13 @@
                 Margin="8"
                 Click="BrowseButton_OnClick"/>
 
-        <StackPanel x:Name="StatusPanel"
+        <DockPanel x:Name="StatusPanel"
                     Grid.Row="2"
                     Grid.Column="1"
-                    Orientation="Horizontal"
                     Margin="8"
-                    HorizontalAlignment="Stretch">
+                    HorizontalAlignment="Stretch"
+                    Dock="Bottom"
+                    LastChildFill="True">
             <TextBlock x:Name="ProgressLabel"
                        Text="Waiting for the user..."
                        Margin="0,0,8,0"/>
@@ -56,6 +57,6 @@
                          IsIndeterminate="True"
                          Visibility="Collapsed"
                          HorizontalAlignment="Stretch"/>
-        </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

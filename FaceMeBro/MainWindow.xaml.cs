@@ -25,7 +25,6 @@ namespace FaceMeBro
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string SubscriptionKey = "<dummy>";
         private const string Endpoint = "https://eastus2.api.cognitive.microsoft.com/face/v1.0";
 
         private static readonly Dictionary<string, SolidColorBrush> emotionMap = new Dictionary<string, SolidColorBrush>()
@@ -64,7 +63,6 @@ namespace FaceMeBro
             }
         };
 
-        private readonly FaceServiceClient faceClient = new FaceServiceClient(SubscriptionKey, Endpoint);
         private string selectedFilePath;
 
         public MainWindow()
@@ -102,11 +100,15 @@ namespace FaceMeBro
             Face[] faces;
             using (FileStream stream = File.OpenRead(selectedFilePath))
             {
-                faces = await faceClient.DetectAsync(
-                    stream,
-                    returnFaceId: true,
-                    returnFaceLandmarks: true,
-                    returnFaceAttributes: new[] { FaceAttributeType.Emotion });
+                using (FaceServiceClient client =
+                    new FaceServiceClient(File.ReadAllText("./FaceApiSubscriptionKey.txt"), Endpoint))
+                {
+                    faces = await client.DetectAsync(
+                        stream,
+                        returnFaceId: true,
+                        returnFaceLandmarks: true,
+                        returnFaceAttributes: new[] { FaceAttributeType.Emotion });
+                }
             }
 
             Dispatcher.Invoke(() =>
