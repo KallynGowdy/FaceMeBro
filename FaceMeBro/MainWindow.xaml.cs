@@ -25,7 +25,7 @@ namespace FaceMeBro
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string SubscriptionKey = "7f1370c7263d460ca586ed747aa261aa";
+        private const string SubscriptionKey = "<dummy>";
         private const string Endpoint = "https://eastus2.api.cognitive.microsoft.com/face/v1.0";
 
         private static readonly Dictionary<string, SolidColorBrush> emotionMap = new Dictionary<string, SolidColorBrush>()
