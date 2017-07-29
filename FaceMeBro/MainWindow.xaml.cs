@@ -27,6 +27,9 @@ namespace FaceMeBro
     {
         private const string Endpoint = "https://eastus2.api.cognitive.microsoft.com/face/v1.0";
 
+        /// <summary>
+        /// A dictionary that maps emotions to colors.
+        /// </summary>
         private static readonly Dictionary<string, SolidColorBrush> emotionMap = new Dictionary<string, SolidColorBrush>()
         {
             {
@@ -91,14 +94,48 @@ namespace FaceMeBro
                 ProgressLabel.Text = "Loading Faces...";
                 Progress.Visibility = Visibility.Visible;
                 ClearFaces();
-                Task.Run(() => DetectFaces());
+                Task.Run(() => DetectFaces(selectedFilePath));
             }
         }
 
-        private async void DetectFaces()
+        /// <summary>
+        /// Asynchronously detects faces in the selected image.
+        /// </summary>
+        /// <param name="filePath">The file path to the image that the faces should be detected from.</param>
+        private async Task DetectFaces(string filePath)
+        {
+            var faces = await LoadFaces(filePath);
+            Dispatcher.Invoke(() => { DisplayFaces(faces); });
+        }
+
+        /// <summary>
+        /// Displays the given array of faces on the image.
+        /// </summary>
+        /// <param name="faces"></param>
+        private void DisplayFaces(Face[] faces)
+        {
+            foreach (var face in faces)
+            {
+                // Draw the face rectangle on the output canvas.
+                var rect = CalculateRectForFace(face);
+                OutputCanvas.Children.Add(rect);
+                Canvas.SetTop(rect, face.FaceRectangle.Top);
+                Canvas.SetLeft(rect, face.FaceRectangle.Left);
+            }
+
+            ProgressLabel.Text = "Wating for user input...";
+            Progress.Visibility = Visibility.Collapsed;
+        }
+
+        /// <summary>
+        /// Asynchronously loads a list of faces from the API.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        private async Task<Face[]> LoadFaces(string filePath)
         {
             Face[] faces;
-            using (FileStream stream = File.OpenRead(selectedFilePath))
+            using (FileStream stream = File.OpenRead(filePath))
             {
                 using (FaceServiceClient client =
                     new FaceServiceClient(File.ReadAllText("./FaceApiSubscriptionKey.txt"), Endpoint))
@@ -107,26 +144,15 @@ namespace FaceMeBro
                         stream,
                         returnFaceId: true,
                         returnFaceLandmarks: true,
-                        returnFaceAttributes: new[] { FaceAttributeType.Emotion });
+                        returnFaceAttributes: new[] {FaceAttributeType.Emotion});
                 }
             }
-
-            Dispatcher.Invoke(() =>
-            {
-                foreach (var face in faces)
-                {
-                    // Draw the face rectangle on the output canvas.
-                    var rect = CalculateRectForFace(face);
-                    OutputCanvas.Children.Add(rect);
-                    Canvas.SetTop(rect, face.FaceRectangle.Top);
-                    Canvas.SetLeft(rect, face.FaceRectangle.Left);
-                }
-
-                ProgressLabel.Text = "Wating for user input...";
-                Progress.Visibility = Visibility.Collapsed;
-            });
+            return faces;
         }
 
+        /// <summary>
+        /// Clears the display of all face rectangles.
+        /// </summary>
         private void ClearFaces()
         {
             if (OutputCanvas.Children.Count > 1)
@@ -135,6 +161,11 @@ namespace FaceMeBro
             }
         }
 
+        /// <summary>
+        /// Calculates the rectangle for the given face.
+        /// </summary>
+        /// <param name="face"></param>
+        /// <returns></returns>
         private static Rectangle CalculateRectForFace(Face face)
         {
             return new Rectangle()
@@ -147,6 +178,11 @@ namespace FaceMeBro
             };
         }
 
+        /// <summary>
+        /// Calculates the color that the given face should use.
+        /// </summary>
+        /// <param name="face"></param>
+        /// <returns></returns>
         private static SolidColorBrush CalculateColorForFace(Face face)
         {
             var bestEmotion = face.FaceAttributes.Emotion.ToRankedList().First();
